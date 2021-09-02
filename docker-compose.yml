@@ -1,0 +1,42 @@
+version: "3.7"
+networks:
+  camunda-worker:
+    external: false
+
+services:
+  camunda:
+    image: camunda/camunda-bpm-platform:${DISTRO:-latest}
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      - camunda-worker
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/engine-rest/engine"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+  camunda-external-task-worker:
+    image: camunda-external-task-worker
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: "node ./dist/example/index.js"
+    environment:
+      CAMUNDA_REST_URL: http://camunda:8080/engine-rest
+      WORKFLOW_SERVICE_BASE_URL: http://workflow-service
+    networks:
+      - camunda-worker
+    depends_on:
+      - camunda
+  curl:
+    image: curlimages/curl
+    volumes:
+    - $PWD/src/example/assets:/assets
+    command: "sh /assets/deploy.sh http://camunda:8080 /assets"
+    depends_on:
+      - camunda
+    networks:
+      - camunda-worker
+
