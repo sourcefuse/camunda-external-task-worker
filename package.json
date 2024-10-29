@@ -21,7 +21,7 @@
     "camunda-external-task-client-js": "^2.1.0",
     "dotenv": "^10.0.0",
     "form-data": "^4.0.0",
-    "http-status-codes": "^2.1.4",
+    "http-status-codes": "^2.3.0",
     "module-alias": "^2.2.2",
     "tslib": "^2.3.0"
   },
